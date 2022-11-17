@@ -4,21 +4,19 @@ import { useTodo } from '../components/page/useTodo.hook';
 describe('useTodo hook should', () => {
 
     it('initialize functions and attributes', async () => {
-        const {result} = renderHook(() => useTodo());
+        const {result} = renderHook(() => useTodo('All'));
 
         expect(result.current).toEqual({
             todos: [],
             filteredTodos: [],
             itemsCompleted: 0,
             itemsLeft: 0,
-            activeFilter: "All",
             allTodosAreCompleted: false,
             checkTodo: expect.any(Function),
             clearCompletedTodos: expect.any(Function),
             handleMarkAllTodosAsCompleted: expect.any(Function),
             removeTodo: expect.any(Function),
             saveTodo: expect.any(Function),
-            updateActiveFilter: expect.any(Function),
             updateTodo: expect.any(Function)
         });
     });
@@ -26,7 +24,7 @@ describe('useTodo hook should', () => {
     describe('save todo', () => {
 
         it('with valid label', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
     
             act(() => {
                 result.current.saveTodo('Premier todo');
@@ -43,7 +41,7 @@ describe('useTodo hook should', () => {
         });
     
         it('with empty label', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
     
             act(() => {
                 result.current.saveTodo('');
@@ -63,7 +61,7 @@ describe('useTodo hook should', () => {
     describe('check todo', () => {
         
         it('not checked', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
     
             act(() => {
                 result.current.saveTodo('Premier todo');
@@ -85,7 +83,7 @@ describe('useTodo hook should', () => {
         });
     
         it('already checked', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
     
             act(() => {
                 result.current.saveTodo('Premier todo');
@@ -111,7 +109,7 @@ describe('useTodo hook should', () => {
     describe('remove todo', () => {
         
         it('with one existing todo', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
 
             const todo = {id: 1, libelle: 'Premier todo', completed: false};
     
@@ -135,7 +133,7 @@ describe('useTodo hook should', () => {
         });
     
         it('with two existing todos', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
 
             const todo = {id: 1, libelle: 'Premier todo', completed: false};
     
@@ -166,7 +164,7 @@ describe('useTodo hook should', () => {
     describe('update todo', () => {
         
         it('with label by id', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
 
             act(() => {
                 result.current.saveTodo('Premier todo');
@@ -191,7 +189,7 @@ describe('useTodo hook should', () => {
     describe('mark all todos as', () => {
         
         it('completed', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
 
             act(() => {
                 result.current.saveTodo('Premier todo');
@@ -221,7 +219,7 @@ describe('useTodo hook should', () => {
         });
 
         it('uncompleted', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
 
             act(() => {
                 result.current.saveTodo('Premier todo');
@@ -255,32 +253,10 @@ describe('useTodo hook should', () => {
         });
     });
 
-    describe('update active filter', () => {
-        
-        it.each`
-            filter         | nameTest
-            ${'All'}       | ${'all'}
-            ${'Active'}    | ${'active'}
-            ${'Completed'} | ${'completed'}
-        `('to $nameTest', async (filter) => {
-            const {result} = renderHook(() => useTodo());
-
-            act(() => {
-                result.current.updateActiveFilter(filter);
-            });
-    
-            await waitFor(() => {
-                expect(result.current).toEqual(expect.objectContaining({
-                    activeFilter: filter,
-                }));
-            })
-        });
-    });
-
     describe('clear completed todos', () => {
         
         it('with one completed todo', async () => {
-            const {result} = renderHook(() => useTodo());
+            const {result} = renderHook(() => useTodo('All'));
 
             act(() => {
                 result.current.saveTodo('Premier todo');

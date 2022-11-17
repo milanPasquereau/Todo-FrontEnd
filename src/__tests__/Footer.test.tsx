@@ -1,20 +1,19 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Footer from '../components/page/footer/Footer';
-
+import { BrowserRouter } from "react-router-dom";
 describe('Footer component should', () => {
 
     const clearCompletedTodosMock = jest.fn();
-    const updateActiveFilterMock = jest.fn();
 
     it('render properly with no items completed', async () => {
         render(
-            <Footer
-                itemsLeft={1}
-                itemsCompleted={0}
-                activeFilter={"All"}
-                clearCompletedTodos={clearCompletedTodosMock}
-                updateActiveFilter={updateActiveFilterMock}
-            />
+            <BrowserRouter>
+                <Footer
+                    itemsLeft={1}
+                    itemsCompleted={0}
+                    clearCompletedTodos={clearCompletedTodosMock}
+                />
+            </BrowserRouter>
         );
         
         expect(await screen.findByRole('contentinfo')).toBeInTheDocument();
@@ -26,47 +25,32 @@ describe('Footer component should', () => {
 
     it('render properly with 2 items completed', async () => {
         render(
-            <Footer
-                itemsLeft={1}
-                itemsCompleted={2}
-                activeFilter={"Completed"}
-                clearCompletedTodos={clearCompletedTodosMock}
-                updateActiveFilter={updateActiveFilterMock}
-            />
+            <BrowserRouter>
+                <Footer
+                    itemsLeft={1}
+                    itemsCompleted={2}
+                    clearCompletedTodos={clearCompletedTodosMock}
+                />
+            </BrowserRouter>
         );
         
         expect(await screen.findByRole('contentinfo')).toBeInTheDocument();
         expect(await screen.findByRole('list')).toBeInTheDocument();
         expect((await screen.findAllByRole('link')).length).toBe(3);
         expect(await screen.findByRole('button')).toBeInTheDocument();
-        expect(screen.getByText("Completed")).toHaveClass('selected');
-    });
-
-    it.each(['All', 'Active', 'Completed'])('select %s filter', async (filter) => {
-        render(
-            <Footer
-                itemsLeft={1}
-                itemsCompleted={2}
-                activeFilter={""}
-                clearCompletedTodos={clearCompletedTodosMock}
-                updateActiveFilter={updateActiveFilterMock}
-            />
-        );
-        fireEvent.click(screen.getByText(filter));
-
-        expect(updateActiveFilterMock).toHaveBeenCalledTimes(1);
-        expect(updateActiveFilterMock).toBeCalledWith(filter);
+        expect(screen.getByText("All")).toHaveClass('selected');
+      
     });
 
     it('clear all completed todos and hide clear button', async () => {
         render(
-            <Footer
-                itemsLeft={1}
-                itemsCompleted={2}
-                activeFilter={"Completed"}
-                clearCompletedTodos={clearCompletedTodosMock}
-                updateActiveFilter={updateActiveFilterMock}
-            />
+            <BrowserRouter>
+                <Footer
+                    itemsLeft={1}
+                    itemsCompleted={2}
+                    clearCompletedTodos={clearCompletedTodosMock}
+                />
+            </BrowserRouter>
         );
         fireEvent.click(screen.getByRole('button'));
 

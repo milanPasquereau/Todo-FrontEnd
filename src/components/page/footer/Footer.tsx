@@ -1,30 +1,43 @@
+import { NavLink } from "react-router-dom";
 
 export type FooterProps = {
     itemsLeft: number;
     itemsCompleted: number;
-    activeFilter: string;
     clearCompletedTodos: () => void;
-    updateActiveFilter: (filter: string) => void;
 };
 
-function Footer ({itemsLeft, itemsCompleted, activeFilter, clearCompletedTodos, updateActiveFilter} : FooterProps) {
-
-	const handleFilterSelection = (filter : string) => {
-		updateActiveFilter(filter);
-	}
+function Footer ({itemsLeft, itemsCompleted, clearCompletedTodos} : FooterProps) {
 
     return(
         <footer className="footer">
             <span className="todo-count"><strong>{itemsLeft}</strong> item{itemsLeft !== 1 ? 's' : ''} left</span>
 				<ul className="filters">
 					<li>
-						<a onClick={() => handleFilterSelection('All')} className = {activeFilter === 'All' ? "selected" : ""} href="#/">All</a>
+						<NavLink 
+							to="/" 
+							className = { (link) => {
+								return link.isActive ? 'selected' : ''
+							}}>
+							All
+						</NavLink>
 					</li>
 					<li>
-						<a onClick={() => handleFilterSelection('Active')} className = {activeFilter === 'Active' ? "selected" : ""} href="#/active">Active</a>
+						<NavLink 
+							to="/active" 
+							className = { (link) => {
+								return link.isActive ? 'selected' : ''
+							}}>
+							Active
+						</NavLink>
 					</li>
 					<li>
-						<a onClick={() => handleFilterSelection('Completed')} className = {activeFilter === 'Completed' ? "selected" : ""} href="#/completed">Completed</a>
+						<NavLink 
+							to="/completed" 
+							className = { (link) => {
+								return link.isActive ? 'selected' : ''
+							}}>
+							Completed
+						</NavLink>
 					</li>
 				</ul>
 				{itemsCompleted > 0 && (<button onClick={clearCompletedTodos} className="clear-completed">Clear completed</button>)}

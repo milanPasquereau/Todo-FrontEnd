@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Page from '../components/page/Page';
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {useTodo} from '../components/page/useTodo.hook';
 
     
@@ -18,7 +18,14 @@ describe('Page component should', () => {
         (useTodo as jest.Mock).mockReturnValue({
             todos: []
         });
-        render(<Page/>);
+        
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         expect(screen.queryByRole('main')).not.toBeInTheDocument();
         expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
@@ -30,7 +37,14 @@ describe('Page component should', () => {
             todos: [{id: 1, libelle: 'Premier todo', completed: false}],
             filteredTodos: [{id: 1, libelle: 'Premier todo', completed: false}],
         });
-        render(<Page/>);
+
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         expect(screen.queryByRole('main')).toBeInTheDocument();
         expect(screen.queryByRole('contentinfo')).toBeInTheDocument();
@@ -44,7 +58,13 @@ describe('Page component should', () => {
             saveTodo: saveTodoMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         userEvent.type(
             await screen.findByPlaceholderText('What needs to be done?'),
@@ -65,7 +85,13 @@ describe('Page component should', () => {
             checkTodo: checkTodoMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         userEvent.click(
             await screen.findByRole('menuitemcheckbox'));
@@ -90,7 +116,13 @@ describe('Page component should', () => {
             removeTodo: removeTodoMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         userEvent.click(await screen.findByRole('button'));
         
@@ -114,7 +146,13 @@ describe('Page component should', () => {
             updateTodo: updateTodoMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         userEvent.dblClick(await screen.findByRole('menuitem'));
         userEvent.type(await screen.findByRole('combobox'), ' modifie{enter}');
@@ -139,7 +177,13 @@ describe('Page component should', () => {
             handleMarkAllTodosAsCompleted: handleMarkAllTodosAsCompletedMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         userEvent.click(await screen.findByRole('checkbox'));
         
@@ -164,7 +208,13 @@ describe('Page component should', () => {
             clearCompletedTodos: clearCompletedTodosMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         userEvent.click(screen.queryAllByRole('button')[1]);
         
@@ -195,13 +245,16 @@ describe('Page component should', () => {
             updateActiveFilter: updateActiveFilterMock
         });
 
-        render(<Page/>);
+        render(
+            <BrowserRouter>
+                <Page
+                    filter='All'
+                />
+             </BrowserRouter>
+        );
 
         fireEvent.click(screen.getByText(filter));
         
-        await waitFor(() => {
-            expect(updateActiveFilterMock).toHaveBeenNthCalledWith(1, filter);
-        });
     });
 });
  

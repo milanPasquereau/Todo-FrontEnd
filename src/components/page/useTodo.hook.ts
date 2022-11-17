@@ -1,16 +1,15 @@
-import {useState} from 'react'
+import {useState, } from 'react'
 import {Todo} from '../../model/Todo';
 
-export function useTodo(){
+export function useTodo(filter: string){
 
     /*  const [todos, setTodos] = useState<Todo[]>(JSON.parse(localStorage.getItem('todos-react') || '[]'));
         const [activeFilter, setActiveFilter] = useState(localStorage.getItem('filter-react') || 'All');*/
     const [todos, setTodos] = useState<Todo[]>([]);
     const [allTodosAreCompleted, setAllTodosCompleted] = useState(false);
-    const [activeFilter, setActiveFilter] = useState('All');
-    
+        
     const filteredTodos = todos.filter((todo) => {
-        switch(activeFilter) {
+        switch(filter) {
             case 'Active': return !todo.completed;
             case 'Completed': return todo.completed;
             default: return todo;
@@ -71,11 +70,6 @@ export function useTodo(){
         setAllTodosCompleted(!allTodosAreCompleted);
     }
 
-    const updateActiveFilter = (newFilter: string) => {
-        setActiveFilter(newFilter);
-        //localStorage.setItem('filter-react', JSON.stringify(newFilter));
-    }
-
     const clearCompletedTodos = () => {
         updateTodos(todos.filter((todo) => {
             return !todo.completed;
@@ -91,14 +85,12 @@ export function useTodo(){
         todos,
         filteredTodos,
         allTodosAreCompleted,
-        activeFilter,
         itemsLeft,
         itemsCompleted,
         saveTodo,
         handleMarkAllTodosAsCompleted,
         clearCompletedTodos,
         checkTodo,
-        updateActiveFilter,
         removeTodo,
         updateTodo
     }

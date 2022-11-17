@@ -3,13 +3,16 @@ import {useTodo} from './useTodo.hook'
 import Footer from './footer/Footer';
 import TodoList from './todo-list/TodoList';
 
-function Page(){
+export type PageProps = {
+    filter: string;
+};
+
+function Page({filter} : PageProps){
 
     const {
         todos,
         filteredTodos,
         allTodosAreCompleted,
-        activeFilter,
         itemsLeft,
         itemsCompleted,
         saveTodo,
@@ -17,9 +20,8 @@ function Page(){
         updateTodo,
         checkTodo,
         handleMarkAllTodosAsCompleted,
-        clearCompletedTodos,
-        updateActiveFilter
-     } = useTodo();
+        clearCompletedTodos
+    } = useTodo(filter);
 
     return (
         <section className="todoapp">
@@ -48,9 +50,7 @@ function Page(){
             <Footer
                 itemsLeft = {itemsLeft}
                 itemsCompleted = {itemsCompleted}
-                activeFilter = {activeFilter}
                 clearCompletedTodos = {() => clearCompletedTodos()}
-                updateActiveFilter = {(newFilter: string) => updateActiveFilter(newFilter)}
              />
         )}
         </section>
