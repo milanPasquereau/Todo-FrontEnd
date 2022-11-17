@@ -26,7 +26,7 @@ describe('TodoElement component should', () => {
         
         expect(await screen.findByText('Todo 1')).toBeInTheDocument();
         expect(await screen.findByRole('button')).toBeInTheDocument();
-        expect(await screen.findByRole('checkbox')).toBeInTheDocument();
+        expect(await screen.findByRole('menuitemcheckbox')).toBeInTheDocument();
     });
 
     it('remove a todo', async () => {
@@ -62,7 +62,7 @@ describe('TodoElement component should', () => {
                 updateTodo={updateTodoMock}
             />
         );
-        fireEvent.click(screen.getByRole('checkbox'));
+        fireEvent.click(screen.getByRole('menuitemcheckbox'));
         expect(checkTodoMock).toHaveBeenNthCalledWith(1, todoChecked.id);
     });
 
@@ -76,7 +76,7 @@ describe('TodoElement component should', () => {
             />
         );
         fireEvent.doubleClick(screen.getByText('Todo 1'));
-        expect(await screen.findByRole('textbox')).toBeInTheDocument();
+        expect(await screen.findByRole('combobox')).toBeInTheDocument();
     });
 
     it('update todo with current label when key down enter is pressed in editing mode', async () => {
@@ -89,7 +89,7 @@ describe('TodoElement component should', () => {
             />
         );
         fireEvent.doubleClick(screen.getByText('Todo 1'));
-        fireEvent.keyDown(screen.getByRole('textbox'), {key: 'Enter', code: 'Enter', charCode: 13});
+        fireEvent.keyDown(screen.getByRole('combobox'), {key: 'Enter', code: 'Enter', charCode: 13});
         expect(updateTodoMock).toHaveBeenNthCalledWith(1, todo.libelle, todo.id);
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
@@ -104,7 +104,7 @@ describe('TodoElement component should', () => {
             />
         );
         fireEvent.doubleClick(screen.getByText('Todo 1'));
-        userEvent.type(await screen.findByRole('textbox'), ' coucou{enter}');
+        userEvent.type(await screen.findByRole('combobox'), ' coucou{enter}');
         expect(updateTodoMock).toHaveBeenNthCalledWith(1, 'Todo 1 coucou', todo.id);
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
@@ -123,7 +123,7 @@ describe('TodoElement component should', () => {
             />
         );
         fireEvent.doubleClick(screen.getByText('Todo 1'));
-        userEvent.type(await screen.findByRole('textbox'), ' coucou{escape}');
+        userEvent.type(await screen.findByRole('combobox'), ' coucou{escape}');
         expect(updateTodoMock).toHaveBeenCalledTimes(0);
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
@@ -142,8 +142,8 @@ describe('TodoElement component should', () => {
                 updateTodo={updateTodoMock}
             />
         );
-        fireEvent.doubleClick(screen.getByRole('listitem'));
-        userEvent.type(await screen.findByRole('textbox'), '     {enter}');
+        fireEvent.doubleClick(screen.getByRole('menuitem'));
+        userEvent.type(await screen.findByRole('combobox'), '     {enter}');
         expect(removeTodoMock).toHaveBeenNthCalledWith(1, todoBlank);
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });

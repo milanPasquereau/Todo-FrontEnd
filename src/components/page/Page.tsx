@@ -33,7 +33,7 @@ function Page(){
             />
             </header>
         {todos.length > 0 && (
-            <section className="main">
+            <section className="main" role="main">
             <input checked={allTodosAreCompleted} onChange={() => handleMarkAllTodosAsCompleted()} id="toggle-all" className="toggle-all" type="checkbox"></input>
             <label htmlFor="toggle-all">Mark all as complete</label>
             <TodoList

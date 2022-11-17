@@ -32,11 +32,13 @@ function TodoElement({todo, removeTodo, checkTodo, updateTodo} : ElementProps) {
     return (
         <li
             onDoubleClick = {() => setEditingMode(true)}
-            className = {`${editingMode ? "editing" : ""} ${todo.completed ? "completed" : ""}`}>
+            className = {`${editingMode ? "editing" : ""} ${todo.completed ? "completed" : ""}`}
+            role="menuitem">
             <div className='view'>
                 <input
                     className = "toggle"
                     type = "checkbox"
+                    role = "menuitemcheckbox"
                     checked = {todo.completed}
                     onChange = {() => checkTodo(todo.id)}
                 />
@@ -48,6 +50,7 @@ function TodoElement({todo, removeTodo, checkTodo, updateTodo} : ElementProps) {
             </div>
             {editingMode && (
                 <input
+                    role="combobox"
                     defaultValue={todo.libelle}
                     autoFocus
                     onKeyDown={(event) => handleUpdatedDone(event, todo.id)}

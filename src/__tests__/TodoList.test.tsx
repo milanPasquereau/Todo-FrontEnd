@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import TodoList from '../components/page/todo-list/TodoList';
 
 describe('TodoList component should', () => {
@@ -29,6 +29,6 @@ describe('TodoList component should', () => {
         );
 
         expect(await screen.findByRole('list')).toBeInTheDocument();
-        expect((await screen.findAllByRole('listitem')).length).toBe(todos.length);
+        expect((await screen.findAllByRole('menuitem')).length).toBe(todos.length);
     });
 });

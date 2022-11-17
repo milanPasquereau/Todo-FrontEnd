@@ -36,13 +36,13 @@ export function useTodo(){
     }
 
     const checkTodo = (id: number) => {
-        const newTdos = todos.map(todo => {
+        const newTodos = todos.map(todo => {
             if(todo.id === id) {
                 todo.completed = !todo.completed;
             }
             return todo;
         });
-        updateTodos(newTdos);
+        updateTodos(newTodos);
         setAllTodosCompleted(todos.filter(todo => {
             return todo.completed;
         }).length === todos.length);
