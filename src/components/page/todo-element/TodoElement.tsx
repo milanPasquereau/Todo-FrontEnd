@@ -4,8 +4,8 @@ import {useState, KeyboardEvent} from 'react'
 export type ElementProps = {
     todo: Todo;
     removeTodo: (nameTodo: Todo) => void;
-    checkTodo:(id: number) => void;
-    updateTodo:(newLabelTodo: string, id: number) => void;
+    checkTodo:(todo: Todo) => void;
+    updateTodo:(todo: Todo, newLabelTodo: string) => void;
 };
 
 function TodoElement({todo, removeTodo, checkTodo, updateTodo} : ElementProps) {
@@ -15,11 +15,11 @@ function TodoElement({todo, removeTodo, checkTodo, updateTodo} : ElementProps) {
 
     const [editingMode, setEditingMode] = useState(false);
     
-    const handleUpdatedDone = (event: KeyboardEvent<HTMLInputElement>, id :number) => {
+    const handleUpdatedDone = (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === ENTER_KEY) {
             const newLabelTodo = event.currentTarget.value;
             if(newLabelTodo.trim()) {
-                updateTodo(newLabelTodo, id);
+                updateTodo(todo, newLabelTodo);
             } else {
                 removeTodo(todo);
             }
@@ -40,9 +40,9 @@ function TodoElement({todo, removeTodo, checkTodo, updateTodo} : ElementProps) {
                     type = "checkbox"
                     role = "menuitemcheckbox"
                     checked = {todo.completed}
-                    onChange = {() => checkTodo(todo.id)}
+                    onChange = {() => checkTodo(todo)}
                 />
-                <label>{todo.libelle}</label>
+                <label>{todo.title}</label>
                 <button
                     className= "destroy"
                     onClick={() => removeTodo(todo)}>
@@ -51,9 +51,9 @@ function TodoElement({todo, removeTodo, checkTodo, updateTodo} : ElementProps) {
             {editingMode && (
                 <input
                     role="combobox"
-                    defaultValue={todo.libelle}
+                    defaultValue={todo.title}
                     autoFocus
-                    onKeyDown={(event) => handleUpdatedDone(event, todo.id)}
+                    onKeyDown={(event) => handleUpdatedDone(event)}
                     className = "edit">
                 </input>)
             }

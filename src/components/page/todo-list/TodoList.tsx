@@ -3,9 +3,9 @@ import { Todo } from '../../../model/Todo';
 
 export type ListProps = {
     listTodos: Todo[];
-    removeTodo: (nameTodo: Todo) => void;
-    checkTodo:(id: number) => void;
-    updateTodo:(newLabelTodo: string, id: number) => void;
+    removeTodo: (todo: Todo) => void;
+    checkTodo:(todo: Todo) => void;
+    updateTodo:(todo: Todo, newLabelTodo: string) => void;
 };
 
 function TodoList({listTodos, removeTodo, checkTodo, updateTodo}: ListProps) {
@@ -17,8 +17,8 @@ function TodoList({listTodos, removeTodo, checkTodo, updateTodo}: ListProps) {
                     key={todo.id}
                     todo={todo}
                     removeTodo={(todo) => removeTodo(todo)}
-                    checkTodo={(id) => checkTodo(id)}
-                    updateTodo={(newLabelTodo, id) => updateTodo(newLabelTodo, id)}
+                    checkTodo={(todo) => checkTodo(todo)}
+                    updateTodo={(todo, newLabelTodo) => updateTodo(todo, newLabelTodo)}
                 />
             ))}
         </ul>

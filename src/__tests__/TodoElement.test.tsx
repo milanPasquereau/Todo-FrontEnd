@@ -9,9 +9,11 @@ describe('TodoElement component should', () => {
     const updateTodoMock = jest.fn();
 
     const todo = {
-        id: 1,
-        libelle: "Todo 1",
+        id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93",
+        title: "Todo 1",
         completed: false,
+        order: 1,
+        url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93"
     };
 
     it('render properly', async () => {
@@ -49,9 +51,11 @@ describe('TodoElement component should', () => {
     `('$nameTest a todo', async (checked) => {
 
         const todoChecked = {
-            id: 1,
-            libelle: "Todo 1",
+            id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93",
+            title: "Todo 1",
             completed: checked,
+            order: 1,
+            url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93"
         };
 
         render(
@@ -63,7 +67,7 @@ describe('TodoElement component should', () => {
             />
         );
         fireEvent.click(screen.getByRole('menuitemcheckbox'));
-        expect(checkTodoMock).toHaveBeenNthCalledWith(1, todoChecked.id);
+        expect(checkTodoMock).toHaveBeenNthCalledWith(1, todoChecked);
     });
 
     it('enable editing mode and show editing input', async () => {
@@ -90,7 +94,7 @@ describe('TodoElement component should', () => {
         );
         fireEvent.doubleClick(screen.getByText('Todo 1'));
         fireEvent.keyDown(screen.getByRole('combobox'), {key: 'Enter', code: 'Enter', charCode: 13});
-        expect(updateTodoMock).toHaveBeenNthCalledWith(1, todo.libelle, todo.id);
+        expect(updateTodoMock).toHaveBeenNthCalledWith(1, todo, 'Todo 1');
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
 
@@ -105,7 +109,7 @@ describe('TodoElement component should', () => {
         );
         fireEvent.doubleClick(screen.getByText('Todo 1'));
         userEvent.type(await screen.findByRole('combobox'), ' coucou{enter}');
-        expect(updateTodoMock).toHaveBeenNthCalledWith(1, 'Todo 1 coucou', todo.id);
+        expect(updateTodoMock).toHaveBeenNthCalledWith(1, todo, 'Todo 1 coucou');
         expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
     });
 
@@ -113,9 +117,11 @@ describe('TodoElement component should', () => {
         render(
             <TodoElement
                 todo = {{
-                    id: 1,
-                    libelle: "Todo 1",
+                    id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93",
+                    title: "Todo 1",
                     completed: false,
+                    order: 1,
+                    url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93"
                 }}
                 removeTodo={removeTodoMock}
                 checkTodo={checkTodoMock}
@@ -130,9 +136,11 @@ describe('TodoElement component should', () => {
 
     it('remove todo with blank label when key down enter is pressed in editing mode', async () => {
         const todoBlank = {
-            id: 1,
-            libelle: "",
+            id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93",
+            title: "",
             completed: false,
+            order: 1,
+            url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93"
         };
         render(
             <TodoElement

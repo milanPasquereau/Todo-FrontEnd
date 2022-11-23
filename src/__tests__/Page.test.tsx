@@ -13,6 +13,14 @@ jest.mock('../components/page/useTodo.hook', () => {
 
 describe('Page component should', () => {
 
+    const todo = {
+        id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93",
+        title: "Todo 1",
+        completed: false,
+        order: 1,
+        url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93"
+    };
+
     it('hide main and footer when no todos', async () => {
 
         (useTodo as jest.Mock).mockReturnValue({
@@ -34,8 +42,8 @@ describe('Page component should', () => {
     it('show main and footer when existing todos', async () => {
 
         (useTodo as jest.Mock).mockReturnValue({
-            todos: [{id: 1, libelle: 'Premier todo', completed: false}],
-            filteredTodos: [{id: 1, libelle: 'Premier todo', completed: false}],
+            todos: [todo],
+            filteredTodos: [todo],
         });
 
         render(
@@ -80,8 +88,8 @@ describe('Page component should', () => {
         const checkTodoMock = jest.fn();
 
         (useTodo as jest.Mock).mockReturnValue({
-            todos: [{id: 1, libelle: 'Premier todo', completed: false}],
-            filteredTodos: [{id: 1, libelle: 'Premier todo', completed: false}],
+            todos: [todo],
+            filteredTodos: [todo],
             checkTodo: checkTodoMock
         });
 
@@ -97,18 +105,12 @@ describe('Page component should', () => {
             await screen.findByRole('menuitemcheckbox'));
         
         await waitFor(() => {
-            expect(checkTodoMock).toHaveBeenNthCalledWith(1, 1);
+            expect(checkTodoMock).toHaveBeenNthCalledWith(1, todo);
         });
     });
 
     it('remove todo', async () => {
         const removeTodoMock = jest.fn();
-
-        const todo = {
-            id: 1,
-            libelle: "Todo 1",
-            completed: false,
-        };
 
         (useTodo as jest.Mock).mockReturnValue({
             todos: [todo],
@@ -134,12 +136,6 @@ describe('Page component should', () => {
     it('update todo', async () => {
         const updateTodoMock = jest.fn();
 
-        const todo = {
-            id: 1,
-            libelle: "Premier todo",
-            completed: false,
-        };
-
         (useTodo as jest.Mock).mockReturnValue({
             todos: [todo],
             filteredTodos: [todo],
@@ -158,18 +154,12 @@ describe('Page component should', () => {
         userEvent.type(await screen.findByRole('combobox'), ' modifie{enter}');
         
         await waitFor(() => {
-            expect(updateTodoMock).toHaveBeenNthCalledWith(1, 'Premier todo modifie', 1);
+            expect(updateTodoMock).toHaveBeenNthCalledWith(1, todo, todo.title+' modifie');
         });
     });
 
     it('handle mark all todos as completed', async () => {
         const handleMarkAllTodosAsCompletedMock = jest.fn();
-
-        const todo = {
-            id: 1,
-            libelle: "Premier todo",
-            completed: false,
-        };
 
         (useTodo as jest.Mock).mockReturnValue({
             todos: [todo],
@@ -195,11 +185,7 @@ describe('Page component should', () => {
     it('clear all completed todos', async () => {
         const clearCompletedTodosMock = jest.fn();
 
-        const todo = {
-            id: 1,
-            libelle: "Premier todo",
-            completed: true,
-        };
+        todo.completed = true;
 
         (useTodo as jest.Mock).mockReturnValue({
             todos: [todo],
@@ -230,12 +216,6 @@ describe('Page component should', () => {
             ${'Completed'} | ${'completed'}
         `('update filter to $nameTest', async ({filter, nameTest}) => {
         const updateActiveFilterMock = jest.fn();
-
-        const todo = {
-            id: 1,
-            libelle: "Premier todo",
-            completed: false,
-        };
 
         (useTodo as jest.Mock).mockReturnValue({
             todos: [todo],

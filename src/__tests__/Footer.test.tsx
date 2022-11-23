@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Footer from '../components/page/footer/Footer';
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter , useParams} from "react-router-dom";
 describe('Footer component should', () => {
 
     const clearCompletedTodosMock = jest.fn();

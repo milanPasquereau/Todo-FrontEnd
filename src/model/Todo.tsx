@@ -1,5 +1,7 @@
 export type Todo = {
-    id: number;
-    libelle: string;
+    id: string;
+    order: number;
+    url: string;
+    title: string;
     completed: boolean;
 };

@@ -10,13 +10,17 @@ describe('TodoList component should', () => {
     it('render properly all todos', async () => {
         const todos = [
             {
-                id: 1,
-                libelle: "Todo 1",
+                id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93",
+                title: "Todo 1",
                 completed: true,
+                order: 1,
+                url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f93"
             }, {
-                id: 2,
-                libelle: "Todo 2",
+                id: "0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f94",
+                title: "Todo 2",
                 completed: true,
+                order: 2,
+                url: "http://localhost:8080/todos/0e7fd850-b27e-40a4-8a1f-d2dfdf3c2f94"
             }
         ]
         render(

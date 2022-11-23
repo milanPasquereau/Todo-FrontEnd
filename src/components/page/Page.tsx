@@ -12,7 +12,6 @@ function Page({filter} : PageProps){
     const {
         todos,
         filteredTodos,
-        allTodosAreCompleted,
         itemsLeft,
         itemsCompleted,
         saveTodo,
@@ -36,13 +35,13 @@ function Page({filter} : PageProps){
             </header>
         {todos.length > 0 && (
             <section className="main" role="main">
-            <input checked={allTodosAreCompleted} onChange={() => handleMarkAllTodosAsCompleted()} id="toggle-all" className="toggle-all" type="checkbox"></input>
+            <input checked={itemsCompleted === todos.length} onChange={() => handleMarkAllTodosAsCompleted()} id="toggle-all" className="toggle-all" type="checkbox"></input>
             <label htmlFor="toggle-all">Mark all as complete</label>
             <TodoList
                 listTodos = {filteredTodos}
                 removeTodo={(todoToRemove) => removeTodo(todoToRemove)}
-                checkTodo = {(id) => checkTodo(id)} 
-                updateTodo = {(newLabelTodo, id) => updateTodo(newLabelTodo, id)}
+                checkTodo = {(todo) => checkTodo(todo)} 
+                updateTodo = {(todo, newLabelTodo) => updateTodo(todo, newLabelTodo)}
             />
             </section>
         )}       

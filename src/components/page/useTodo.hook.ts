@@ -1,20 +1,25 @@
-import {useState, } from 'react'
+import {useState, useEffect} from 'react'
 import {Todo} from '../../model/Todo';
 
-export function useTodo(filter: string){
+const API_URL = 'http://localhost:8080/todos/';
 
-    /*  const [todos, setTodos] = useState<Todo[]>(JSON.parse(localStorage.getItem('todos-react') || '[]'));
-        const [activeFilter, setActiveFilter] = useState(localStorage.getItem('filter-react') || 'All');*/
+export function useTodo(filter: string){
     const [todos, setTodos] = useState<Todo[]>([]);
-    const [allTodosAreCompleted, setAllTodosCompleted] = useState(false);
-        
+
+    useEffect(() => {
+        const headers = { 'Content-Type': 'application/json' }
+        fetch(API_URL, {headers})
+            .then(response => response.json())
+            .then(data => { setTodos(data) });
+    }, [todos]);
+
     const filteredTodos = todos.filter((todo) => {
         switch(filter) {
             case 'Active': return !todo.completed;
             case 'Completed': return todo.completed;
             default: return todo;
         }
-      });
+    });
 
     const itemsLeft = todos.filter((todo: Todo) => {
         return !todo.completed;
@@ -26,65 +31,107 @@ export function useTodo(filter: string){
 
     const saveTodo = (newTodoLbl : string) => {
         if (newTodoLbl.length !== 0) {
-            updateTodos([...todos, {
-                id: todos[todos.length - 1] ? todos[todos.length - 1].id + 1 : 1,
-                libelle: newTodoLbl,
-                completed: false,
-            }]);
+            const requestOptions = {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ title: newTodoLbl })
+            };
+            fetch(API_URL, requestOptions)
+                .then(response => response.json())
+                .then(data => setTodos([...todos, data]));
         }
     }
 
-    const checkTodo = (id: number) => {
-        const newTodos = todos.map(todo => {
-            if(todo.id === id) {
-                todo.completed = !todo.completed;
-            }
-            return todo;
-        });
-        updateTodos(newTodos);
-        setAllTodosCompleted(todos.filter(todo => {
-            return todo.completed;
-        }).length === todos.length);
-    }
-
     const removeTodo = (todoToRemove: Todo) => {
-        updateTodos(todos.filter((todo) => {
-            return todo.id !== todoToRemove.id;
-        }));
+        const requestOptions = {
+            method: 'DELETE',
+            headers: { 
+                'Content-Type': 'application/json',
+            }
+        };
+        fetch(API_URL+todoToRemove.id, requestOptions)
+            .then(() => setTodos(todos.filter((todo) => {
+                return todo.id !== todoToRemove.id;
+        })));
+    }
+    
+    const clearCompletedTodos = () => {
+        const requestOptions = {
+            method: 'DELETE',
+            headers: { 
+                'Content-Type': 'application/json',
+            }
+        };
+        fetch('http://localhost:8080/todos?completed=true', requestOptions)
+        .then(() =>  setTodos(todos.filter((todo) => {
+            return !todo.completed;
+        })));
     }
 
-    const updateTodo = (newLabelTodo : string, id: number) => {
-        updateTodos(todos.map(todo => {
-            if(todo.id === id) {
-              todo.libelle = newLabelTodo
+    const checkTodo = (todo: Todo) => {
+        const requestOptions = {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ completed: !todo.completed })
+        };
+
+        fetch(API_URL+todo.id, requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            setTodos(todos.map(localTodo => {
+            if(localTodo.id === data.id) {
+                localTodo.completed = data.completed;
             }
-            return todo;
-        }));
+            return localTodo;
+        }))});
+    }
+
+    const updateTodo = (todo: Todo, newLabelTodo: string) => {
+        const requestOptions = {
+            method: 'PATCH',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title: newLabelTodo})
+        };
+
+        fetch(API_URL+todo.id, requestOptions)
+        .then(response => response.json())
+        .then(data => setTodos(todos.map(localTodo => {
+            if(localTodo.id === data.id) {
+                localTodo.title = newLabelTodo
+            }
+            return localTodo;
+        })));
     }
       
     const handleMarkAllTodosAsCompleted = () => {
-        updateTodos(todos.map(todo => {
-            todo.completed = !allTodosAreCompleted;
-            return todo;
-        }));
-        setAllTodosCompleted(!allTodosAreCompleted);
-    }
-
-    const clearCompletedTodos = () => {
-        updateTodos(todos.filter((todo) => {
-            return !todo.completed;
-        }));
-    }
-
-    const updateTodos = (newTodos : Todo[]) => {
-        setTodos(newTodos);
-        //localStorage.setItem('todos-react', JSON.stringify(newTodos));
+        const allTodosAreCompleted = itemsCompleted === todos.length;
+        todos.forEach(todo => {
+            const requestOptions = {
+                method: 'PATCH',
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ completed: !allTodosAreCompleted})
+            };
+    
+            fetch(API_URL+todo.id, requestOptions)
+            .then(response => response.json())
+            .then(() => setTodos(todos.map(localTodo => {
+                localTodo.completed = !allTodosAreCompleted;
+                return localTodo;
+            })));
+        });
     }
 
     return {
         todos,
         filteredTodos,
-        allTodosAreCompleted,
         itemsLeft,
         itemsCompleted,
         saveTodo,

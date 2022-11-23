@@ -1,7 +1,18 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
+import {PropsWithChildren} from 'react'
 import { useTodo } from '../components/page/useTodo.hook';
+import server from '../mocks/server';
+import { rest } from 'msw'
 
 describe('useTodo hook should', () => {
+
+    const todo = {
+        id: 'f79e82e8-c34a-4dc7-a49e-9fadc0979fda',
+        title: 'Premier todo',
+        completed: false,
+        order: 1,
+        url: 'http://localhost:8080/todos/f79e82e8-c34a-4dc7-a49e-9fadc0979fda'
+    };
 
     it('initialize functions and attributes', async () => {
         const {result} = renderHook(() => useTodo('All'));
@@ -11,7 +22,6 @@ describe('useTodo hook should', () => {
             filteredTodos: [],
             itemsCompleted: 0,
             itemsLeft: 0,
-            allTodosAreCompleted: false,
             checkTodo: expect.any(Function),
             clearCompletedTodos: expect.any(Function),
             handleMarkAllTodosAsCompleted: expect.any(Function),
@@ -25,15 +35,22 @@ describe('useTodo hook should', () => {
 
         it('with valid label', async () => {
             const {result} = renderHook(() => useTodo('All'));
-    
+
+            server.use(rest.get('http://localhost:8080/todos/', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([todo])
+                );
+            }));
+
             act(() => {
                 result.current.saveTodo('Premier todo');
             });
-    
+      
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [{id: 1, libelle: 'Premier todo', completed: false}],
-                    filteredTodos: [{id: 1, libelle: 'Premier todo', completed: false}],
+                    todos: [todo],
+                    filteredTodos: [todo],
                     itemsCompleted: 0,
                     itemsLeft: 1,
                 }));
@@ -42,11 +59,7 @@ describe('useTodo hook should', () => {
     
         it('with empty label', async () => {
             const {result} = renderHook(() => useTodo('All'));
-    
-            act(() => {
-                result.current.saveTodo('');
-            });
-   
+            result.current.saveTodo('');
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
                     todos: [],
@@ -59,23 +72,32 @@ describe('useTodo hook should', () => {
     });
 
     describe('check todo', () => {
-        
+
         it('not checked', async () => {
             const {result} = renderHook(() => useTodo('All'));
-    
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+
+            server.use(rest.get('http://localhost:8080/todos/', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([todo])
+                );
+            }));
 
             act(() => {
-                result.current.checkTodo(1);
+                result.current.checkTodo(todo);
             });
-    
+
+            server.use(rest.get('http://localhost:8080/todos/', (req, res, ctx) => {
+                return res(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: true }])
+                );
+            }));
+
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [{id: 1, libelle: 'Premier todo', completed: true}],
-                    filteredTodos: [{id: 1, libelle: 'Premier todo', completed: true}],
-                    allTodosAreCompleted: true,
+                    todos: [{ ...todo, completed: true }],
+                    filteredTodos: [{ ...todo, completed: true }],
                     itemsCompleted: 1,
                     itemsLeft: 0,
                 }));
@@ -84,21 +106,26 @@ describe('useTodo hook should', () => {
     
         it('already checked', async () => {
             const {result} = renderHook(() => useTodo('All'));
-    
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: true }])
+                );
+            }));
 
-            act(() => {
-                result.current.checkTodo(1);
-                result.current.checkTodo(1);
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: false }])
+                );
+            }));
+
+            result.current.checkTodo(todo);
 
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [{id: 1, libelle: 'Premier todo', completed: false}],
-                    filteredTodos: [{id: 1, libelle: 'Premier todo', completed: false}],
-                    allTodosAreCompleted: false,
+                    todos: [{ ...todo, completed: false }],
+                    filteredTodos: [{ ...todo, completed: false }],
                     itemsCompleted: 0,
                     itemsLeft: 1,
                 }));
@@ -111,51 +138,21 @@ describe('useTodo hook should', () => {
         it('with one existing todo', async () => {
             const {result} = renderHook(() => useTodo('All'));
 
-            const todo = {id: 1, libelle: 'Premier todo', completed: false};
-    
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([todo])
+                );
+            }));
 
-            act(() => {
-                result.current.removeTodo(todo);
-            });
+            result.current.removeTodo(todo);
     
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
                     todos: [],
                     filteredTodos: [],
-                    allTodosAreCompleted: false,
                     itemsCompleted: 0,
                     itemsLeft: 0,
-                }));
-            });
-        });
-    
-        it('with two existing todos', async () => {
-            const {result} = renderHook(() => useTodo('All'));
-
-            const todo = {id: 1, libelle: 'Premier todo', completed: false};
-    
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
-
-            act(() => {
-                result.current.saveTodo('Second todo');
-            });
-
-            act(() => {
-                result.current.removeTodo(todo);
-            });
-    
-            await waitFor(() => {
-                expect(result.current).toEqual(expect.objectContaining({
-                    todos: [{id: 2, libelle: 'Second todo', completed: false}],
-                    filteredTodos: [{id: 2, libelle: 'Second todo', completed: false}],
-                    allTodosAreCompleted: false,
-                    itemsCompleted: 0,
-                    itemsLeft: 1,
                 }));
             });
         });
@@ -166,19 +163,26 @@ describe('useTodo hook should', () => {
         it('with label by id', async () => {
             const {result} = renderHook(() => useTodo('All'));
 
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([todo])
+                );
+            }));
 
-            act(() => {
-                result.current.updateTodo('Premier todo modifie', 1);
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, title: 'Premier todo modifie' }])
+                );
+            }));
+
+            result.current.updateTodo(todo, 'Premier todo modifie');
     
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [{id: 1, libelle: 'Premier todo modifie', completed: false}],
-                    filteredTodos: [{id: 1, libelle: 'Premier todo modifie', completed: false}],
-                    allTodosAreCompleted: false,
+                    todos: [{ ...todo, title: 'Premier todo modifie' }],
+                    filteredTodos: [{ ...todo, title: 'Premier todo modifie' }],
                     itemsCompleted: 0,
                     itemsLeft: 1,
                 }));
@@ -191,27 +195,34 @@ describe('useTodo hook should', () => {
         it('completed', async () => {
             const {result} = renderHook(() => useTodo('All'));
 
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+            const secondTodo = {
+                id: '9fadc097-c34a-4dc7-a49e-9fadc0979fda',
+                title: 'Second todo',
+                completed: false,
+                order: 2,
+                url: 'http://localhost:8080/todos/9fadc097-c34a-4dc7-a49e-9fadc0979fda'
+            };
 
-            act(() => {
-                result.current.saveTodo('Second todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([todo, secondTodo])
+                );
+            }));
 
-            act(() => {
-                result.current.handleMarkAllTodosAsCompleted();
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: true },{ ...secondTodo, completed: true }])
+                );
+            }));
+
+            result.current.handleMarkAllTodosAsCompleted();
     
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [
-                        {id: 1, libelle: 'Premier todo', completed: true},
-                        {id: 2, libelle: 'Second todo', completed: true}],
-                    filteredTodos: [
-                        {id: 1, libelle: 'Premier todo', completed: true},
-                        {id: 2, libelle: 'Second todo', completed: true}],
-                    allTodosAreCompleted: true,
+                    todos: [{ ...todo, completed: true },{ ...secondTodo, completed: true }],
+                    filteredTodos: [{ ...todo, completed: true },{ ...secondTodo, completed: true }],
                     itemsCompleted: 2,
                     itemsLeft: 0,
                 }));
@@ -221,31 +232,34 @@ describe('useTodo hook should', () => {
         it('uncompleted', async () => {
             const {result} = renderHook(() => useTodo('All'));
 
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+            const secondTodo = {
+                id: '9fadc097-c34a-4dc7-a49e-9fadc0979fda',
+                title: 'Second todo',
+                completed: true,
+                order: 2,
+                url: 'http://localhost:8080/todos/9fadc097-c34a-4dc7-a49e-9fadc0979fda'
+            };
 
-            act(() => {
-                result.current.saveTodo('Second todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: true }, secondTodo])
+                );
+            }));
 
-            act(() => {
-                result.current.handleMarkAllTodosAsCompleted();
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: false },{ ...secondTodo, completed: false }])
+                );
+            }));
 
-            act(() => {
-                result.current.handleMarkAllTodosAsCompleted();
-            });
+            result.current.handleMarkAllTodosAsCompleted();
     
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [
-                        {id: 1, libelle: 'Premier todo', completed: false},
-                        {id: 2, libelle: 'Second todo', completed: false}],
-                    filteredTodos: [
-                        {id: 1, libelle: 'Premier todo', completed: false},
-                        {id: 2, libelle: 'Second todo', completed: false}],
-                    allTodosAreCompleted: false,
+                    todos: [{ ...todo, completed: false },{ ...secondTodo, completed: false }],
+                    filteredTodos: [{ ...todo, completed: false },{ ...secondTodo, completed: false }],
                     itemsCompleted: 0,
                     itemsLeft: 2,
                 }));
@@ -254,35 +268,34 @@ describe('useTodo hook should', () => {
     });
 
     describe('clear completed todos', () => {
-        
+
         it('with one completed todo', async () => {
             const {result} = renderHook(() => useTodo('All'));
 
-            act(() => {
-                result.current.saveTodo('Premier todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res.once(
+                    ctx.status(200),
+                    ctx.json([{ ...todo, completed: true }])
+                );
+            }));
 
-            act(() => {
-                result.current.saveTodo('Second todo');
-            });
+            server.use(rest.get('http://localhost:8080/todos', (req, res, ctx) => {
+                return res(
+                    ctx.status(200),
+                    ctx.json([])
+                );
+            }));
 
-            act(() => {
-                result.current.checkTodo(1);
-            });
-
-            act(() => {
-                result.current.clearCompletedTodos();
-            });
+            result.current.handleMarkAllTodosAsCompleted();
     
             await waitFor(() => {
                 expect(result.current).toEqual(expect.objectContaining({
-                    todos: [{id: 2, libelle: 'Second todo', completed: false}],
-                    filteredTodos: [{id: 2, libelle: 'Second todo', completed: false}],
-                    allTodosAreCompleted: false,
+                    todos: [],
+                    filteredTodos: [],
                     itemsCompleted: 0,
-                    itemsLeft: 1,
+                    itemsLeft: 0,
                 }));
-            })
+            });
         });
     });
 
